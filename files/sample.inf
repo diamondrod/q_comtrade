@@ -1,0 +1,75 @@
+[Public Record_Information]
+Source=COMwriter, V1.1
+Record_Information=Fault, AG, Trip,Transmission Line
+Location=189.2, miles
+max_current=3405.5
+min_current=–3087.2
+max_voltage=208.6
+min_voltage=–206.4
+EventNoteCount=2
+
+[Public Event_Information_#1]
+Channel_number=2
+max_value=204.5
+min_value=–205.1
+max_sample_number=168
+min_sample_number=15
+Sample_number_Text_#1=168,Transient on reclose
+Sample_number_Text_#2=15,Minimum during normal load 
+
+[Public Event_Information_#2]
+Channel_number=1
+max_value=206.5
+min_value=205.1
+max_sample_number=159
+min_sample_number=9
+Sample_number_Text_#1=159,Transient on reclose
+Sample_number_Text_#2=9,Minimum during normal load 
+
+[Public File_Description]
+Station_Name=Condie
+Recording_Device_ID=518
+Revision_Year=1999
+Total_Channel_Count=12
+Analog_Channel_Count=6
+Status_Channel_Count=6
+Line_Frequency=60
+Sample_Rate_Count=1
+Sample_Rate_#1=6000.000
+End_Sample_Rate_#1=885
+File_Start_Time=11/07/95,17:38:26.663700 
+Trigger_Time=11/07/95,17:38:26.687500 
+File_Type=ASCII 
+Time_Multiplier=1
+
+[Public Analog_Channel_#1]
+Channel_ID=Popular Va-g
+Phase_ID=
+Monitored_Component=
+Channel_Units=kV
+Channel_Multiplier=0.14462
+Channel_Offset=0.0000000000
+Channel_Skew=0
+Range_Minimum_Limit_Value=–2048
+Range_Maximum_Limit_Value=2048
+Channel_Ratio_Primary =2000
+Channel_Ratio_Secondary=1
+Data_Primary_Secondary=P
+
+[Public Status_Channel_#1]
+Channel_ID=Va over
+Phase_ID=
+Monitored_Component=
+Normal_State=0
+
+[Company1 event_rec]
+recorder_type=1
+trig_set=0,0,0,0,6048,6272,0,0,0,0,0,0,0,0,0,0
+ch_type=1,1,1,1,1,1,1,0,0
+
+[Company1 analog_rec_#1]
+op_limit=15
+trg_over_val=f
+trg_under_val=f
+trg_roc=f
+inverted=0

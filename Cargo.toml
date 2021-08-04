@@ -1,0 +1,21 @@
+[package]
+name = "q_comtrade"
+version = "0.1.0"
+authors = ["diamondrod"]
+edition = "2018"
+license = "Apache-2.0"
+repository = "https://github.com/diamondrod/q_comtrade"
+documentation = "https://docs.rs/q_comtrade"
+readme = "README.md"
+description = """
+COMTRADE file parser for q/kdb+.
+"""
+
+[lib]
+name = "qcomtrade"
+crate-type=["dylib"]
+
+[dependencies]
+chrono="^0.4.9"
+bitvec="0.22"
+kdbplus={version="^0.2", features=["api"]}
