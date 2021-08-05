@@ -33,7 +33,7 @@ macro_rules! parse_token {
   [f64; $tokens:expr, $token_idx:expr, $slice:expr, $slice_idx:expr, $error:expr] => {
     match $tokens[$token_idx].parse::<f64>(){
       Ok(num) => {
-        $slice[$slice_idx].push_raw(num).unwrap();
+        $slice[$slice_idx].push_raw(num as f32).unwrap();
       },
       Err(_) => return Err($error)
     }

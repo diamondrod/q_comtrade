@@ -140,8 +140,8 @@ fn deserialize_comtrade_config_3(lines: &Vec<&str>, num_analog_channel: i32, cur
     let keys = new_list(qtype::SYMBOL_LIST, 13);
     let keys_slice=keys.as_mut_slice::<S>();
     keys_slice[0]=internalize(str_to_S!("analog_channel_index"));
-    keys_slice[1]=internalize(str_to_S!("channel_id"));
-    keys_slice[2]=internalize(str_to_S!("channel_phase"));
+    keys_slice[1]=internalize(str_to_S!("analog_channel_id"));
+    keys_slice[2]=internalize(str_to_S!("analog_channel_phase"));
     keys_slice[3]=internalize(str_to_S!("circuit_component_being_monitored"));
     keys_slice[4]=internalize(str_to_S!("channel_units"));
     keys_slice[5]=internalize(str_to_S!("channel_multiplier"));
@@ -229,8 +229,8 @@ fn deserialize_comtrade_config_4(lines: &Vec<&str>, num_status_channel: i32, cur
     let keys = new_list(qtype::SYMBOL_LIST, 5);
     let keys_slice=keys.as_mut_slice::<S>();
     keys_slice[0]=internalize(str_to_S!("status_channel_index"));
-    keys_slice[1]=internalize(str_to_S!("channel_id"));
-    keys_slice[2]=internalize(str_to_S!("channel_phase"));
+    keys_slice[1]=internalize(str_to_S!("status_channel_id"));
+    keys_slice[2]=internalize(str_to_S!("status_channel_phase"));
     keys_slice[3]=internalize(str_to_S!("circuit_component_being_monitored"));
     keys_slice[4]=internalize(str_to_S!("channel_state"));
 

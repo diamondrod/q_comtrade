@@ -71,11 +71,10 @@ fn deserialize_comtrade_data_inner_ascii(line: &str, values: K, num_analog_chann
 }
 
 /// Deserialize each record of data (.dat) file written in a binary format.
-/// sample number (4 bytes) + timestamp (4 bytes) + analog data (2 bytes) * num_ananalog + status data (INT(num_status / 16 bits))
+/// sample number (4 bytes) + timestamp (4 bytes) + analog data (2 bytes) * num_ananalog + status data (2 * INT(num_status / 16 bits))
 fn deserialize_comtrade_data_inner_binary(chunk: &[u8], mut cursor: usize, values: K, num_analog_channel: i32, num_status_channel: i32, critical_timestamp: bool, first_data_time: i64, timestamp_multiplication_factor: f64) -> Result<usize, &'static str>{
   
-  //println!("expected: {}, actual: {}", 4 * 2 + 2 * num_analog_channel as usize + (num_status_channel as f64 / 16_f64).ceil() as usize, chunk.len());
-  if (chunk.len() % (4 * 2 + 2 * num_analog_channel as usize + (num_status_channel as f64 / 16_f64).ceil() as usize)) != 0{
+  if (chunk.len() % (4 * 2 + 2 * num_analog_channel as usize + 2 * (num_status_channel as f64 / 16_f64).ceil() as usize)) != 0{
     // Total length of bytes is not a multiple of single line length
     return Err("the number of fields is fewer than expected\0");
   }
@@ -87,32 +86,28 @@ fn deserialize_comtrade_data_inner_binary(chunk: &[u8], mut cursor: usize, value
   cursor+=4;
 
   // Deserialize timestamp
-  match u32::from_le_bytes(chunk[cursor..cursor+4].try_into().unwrap()){
-    4294967295 => {
-      // 0xFFFFFFFF representing a missing timestamp
-      if critical_timestamp{
-        return Err("invalid timestamp\0")
-      }
-      else{
-        values_slice[1].push_raw(qnull_base::J).unwrap();
-      }
-    },
-    num => {
-      values_slice[1].push_raw(first_data_time + ((1000 * num as i64) as f64 * timestamp_multiplication_factor) as i64).unwrap();
+  if chunk[cursor..cursor+4] == [0xFF_u8; 4]{
+    if critical_timestamp{
+      return Err("invalid timestamp\0")
     }
+    else{
+      values_slice[1].push_raw(qnull_base::J).unwrap();
+    }
+  }
+  else{
+    let num = i32::from_le_bytes(chunk[cursor..cursor+4].try_into().unwrap());
+    values_slice[1].push_raw(first_data_time + ((1000 * num as i64) as f64 * timestamp_multiplication_factor) as i64).unwrap();
   }
   cursor+=4;
 
   // Deserilize analog data
   chunk[cursor..cursor+2*num_analog_channel as usize].chunks(2).enumerate().for_each(|(idx, data)|{
-    match u16::from_le_bytes(data.try_into().unwrap()){
-      32768 => {
-        // 0x0080 in Little Endian. Missing value.
-        values_slice[2+idx].push_raw(qnull_base::I).unwrap();
-      },
-      num => {
-        values_slice[2+idx].push_raw(num as i32).unwrap();
-      }
+    if data == &[0x00_u8, 0x80]{
+      values_slice[2+idx].push_raw(qnull_base::I).unwrap();
+    }
+    else{
+      let num = i16::from_le_bytes(data.try_into().unwrap());
+      values_slice[2+idx].push_raw(num as i32).unwrap();
     }
     cursor+=2;
   });
@@ -123,7 +118,7 @@ fn deserialize_comtrade_data_inner_binary(chunk: &[u8], mut cursor: usize, value
     // 16 channel data are stored in 2 bytes in Little Endian
     // 8th - 1st | 16th - 9th
     let offset = 16 * idx;
-    let view = data.view_bits::<Lsb0>();
+    let view = data.view_bits::<Msb0>();
     for i in 2 .. 10{
       // Higher bits
       // ex.) values_slice[2+num_analog_channel as usize + offset + 0].push_raw(view[7]).unwrap();
@@ -141,22 +136,26 @@ fn deserialize_comtrade_data_inner_binary(chunk: &[u8], mut cursor: usize, value
   
   if num_status_channel % 16 != 0{
     // Extra chunk exist
-    let extra_chunk_size: usize = num_status_channel as usize % 16;
-    let view = chunk[cursor .. cursor+2].view_bits::<Lsb0>();
+    let extra_chunk_size = num_status_channel as usize % 16;
+    let view = chunk[cursor .. cursor+2].view_bits::<Msb0>();
+    let mut column_offset = 2 + num_analog_channel as usize + 16 * complete_chunk_size as usize;
     if extra_chunk_size > 8{
+      // 8th - 1st | 16th - 9th
       for i in 0..8{
         // Higher bits
-        values_slice[chunk.len()-16+i].push_raw(view[7-i]).unwrap();
+        values_slice[column_offset+i].push_raw(view[7-i]).unwrap();
       }
+      column_offset+=8;
       for i in 0 .. extra_chunk_size - 8{
         // Lower bits
-        values_slice[chunk.len()-8+i].push_raw(view[15-i]).unwrap();
+        values_slice[column_offset+i].push_raw(view[15-i]).unwrap();
       }
     }
     else{
+      // 8th - 1st | 16th - 9th
       for i in 0..extra_chunk_size{
         // Lower bits
-        values_slice[chunk.len()-8+i].push_raw(view[15-i]).unwrap();
+        values_slice[column_offset+i].push_raw(view[7-i]).unwrap();
       }
     }
     cursor+=2;

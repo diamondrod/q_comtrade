@@ -1,6 +1,6 @@
 # COMTARDE File Parser for kdb+
 
-Power system writes out a lot of sample data in COMTRADE format. As these data are time-series data, kdb+ is suitable to analyze it once the data is loaded into database. This library parses three kinds of COMTRADE files, configuration file (`.cfg`), data file (`.dat`) and information file (`.inf`). Data can be loaded from both contents and file path.
+Power system writes out a lot of sample data in COMTRADE format. As these data are time-series data, kdb+ is suitable to analyze it once the data is loaded into database. This shared library provides q/kdb+ with an ability to parse three kinds of COMTRADE files, i.e., configuration file (`.cfg`), data file (`.dat`) and information file (`.inf`). Data can be loaded from both contents (string/bytes) and file path (symbol).
 
 **Notes:**
 - COMTRADE is using `<CR/LF>` as a delimiter. This means that the file format is Windows native.
@@ -9,6 +9,8 @@ Power system writes out a lot of sample data in COMTRADE format. As these data a
 ## Example
 
 ```q
+q)// Load shared library
+q)\l q/comtrade.q
 q)// Load configuration file.
 q)config: "\r\n" sv read0 `:files/sample_ascii.cfg;
 q)// Deserialize config.
@@ -21,21 +23,21 @@ total_number_of_channels         | 63i
 number_of_analog_channels        | 31i
 number_of_status_channels        | 32i
 analog_channel_index             | 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 ..
-channel_id                       | `IA_G1`IB_G1`IC_G1`VA_G1`VB_G1`VC_G1`IA_G2..
-channel_phase                    | `A`B`C`A`B`C`A`B`C`A`B`C`A`B`C`A`B`C`A`B`C..
+analog_channel_id                | `IA_G1`IB_G1`IC_G1`VA_G1`VB_G1`VC_G1`IA_G2..
+analog_channel_phase             | `A`B`C`A`B`C`A`B`C`A`B`C`A`B`C`A`B`C`A`B`C..
 circuit_component_being_monitored| `1`2`3`5`6`7`1`2`3`5`6`7`1`2`3`5`6`7`1`2`3..
 channel_units                    | `A`A`A`V`V`V`A`A`A`V`V`V`A`A`A`V`V`V`A`A`A..
-channel_multiplier               | 3.598565e+08 9.127208e+33 1.940203e-28 8.1..
-channel_offset_adder             | 3.978273e+27 3.557184e+17 4.274483e-37 9.9..
+channel_multiplier               | 0.01983805 0.02008609 0.02013783 0.0494803..
+channel_offset_adder             | 2.468354 8.588351 2.465757 -3.369059 8.144..
 skew                             | 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ..
 minimum_value                    | -99999 -99999 -99999 -99999 -99999 -99999 ..
 maximum_value                    | 99998 99998 99998 99998 99998 99998 99998 ..
-primary_factor                   | 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ..
-secondary_factor                 | 0 0 0 -1.588187e-23 -1.588187e-23 -1.58818..
+primary_factor                   | 2500 2500 2500 6 6 6 2500 2500 2500 6 6 6 ..
+secondary_factor                 | 5 5 5 0.1 0.1 0.1 5 5 5 0.1 0.1 0.1 5 5 5 ..
 scaling_identifier               | "ppppppppppppppppppppppppppppppp"
 status_channel_index             | 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 ..
-channel_id                       | `86_G1`87UA_G1`87UB_G1`87UC_G1`64S_G1`51_G..
-channel_phase                    | ````````````````````````````````
+status_channel_id                | `86_G1`87UA_G1`87UB_G1`87UC_G1`64S_G1`51_G..
+status_channel_phase             | ````````````````````````````````
 ..
 q)// Load data file
 q)data: "\r\n" sv read0 `:files/sample_ascii.dat;
@@ -82,8 +84,8 @@ analog_rec_#1       | `op_limit`trg_over_val`trg_under_val`trg_roc`inverted!(..
 
 # Install
 
-You can use `cargo` to install `q_comtrade`.
+You can use `cargo` to build `libqcomtrade.so`.
 
 ```bash
-comtrader]$ cargo install
+comtrader]$ cargo build --release
 ```
