@@ -10,8 +10,8 @@ use kdbplus::api::*;
 //                          Global Variables                            //
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 
-/// Offset between Unix epoch and q epoch in nanosecond.
-const KDB_TIMESTAMP_OFFSET: i64 = 946684800000000000;
+/// One day in nanoseconds.
+const ONE_DAY_NANOS: i64 = 86_400_000_000_000;
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 //                               Macros                                 //

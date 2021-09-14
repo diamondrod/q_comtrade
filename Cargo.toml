@@ -16,6 +16,5 @@ name = "qcomtrade"
 crate-type=["dylib"]
 
 [dependencies]
-chrono="^0.4.9"
 bitvec="0.22"
 kdbplus={version="^0.2", features=["api"]}

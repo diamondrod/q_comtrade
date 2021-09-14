@@ -196,13 +196,13 @@ pub extern "C" fn deserialize_comtrade_data(data: K, num_analog_channel_: K, num
   // Prepare keys
   let keys=new_list(qtype::SYMBOL_LIST, (2 + num_analog_channel + num_status_channel) as J);
   let keys_slice=keys.as_mut_slice::<S>();
-  keys_slice[0]=internalize(str_to_S!("sample_number"));
-  keys_slice[1]=internalize(str_to_S!("time"));
+  keys_slice[0]=enumerate(str_to_S!("sample_number"));
+  keys_slice[1]=enumerate(str_to_S!("time"));
   for i in 2..2+num_analog_channel as usize{
-    keys_slice[i]=internalize(str_to_S!(format!("analog_channel_{}", i-2).as_str()));
+    keys_slice[i]=enumerate(str_to_S!(format!("analog_channel_{}", i-2).as_str()));
   }
   for i in (2+num_analog_channel) as usize..(2+num_analog_channel+num_status_channel) as usize{
-    keys_slice[i]=internalize(str_to_S!(format!("status_channel_{}", i-2-num_analog_channel as usize).as_str()));
+    keys_slice[i]=enumerate(str_to_S!(format!("status_channel_{}", i-2-num_analog_channel as usize).as_str()));
   }
 
   // Prepare values

@@ -4,8 +4,7 @@
 
 use kdbplus::*;
 use kdbplus::api::*;
-use chrono::prelude::*;
-use super::{parse_token, KDB_TIMESTAMP_OFFSET, load_ascii_data};
+use super::{parse_token, ONE_DAY_NANOS, load_ascii_data};
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//
 //                          Private Fucntions                           //
@@ -21,9 +20,9 @@ fn deserialize_comtrade_config_1(lines: &Vec<&str>, cursor: usize) -> Result<(K,
   else{
     let keys = new_list(qtype::SYMBOL_LIST, 3);
     let keys_slice=keys.as_mut_slice::<S>();
-    keys_slice[0]=internalize(str_to_S!("station_name"));
-    keys_slice[1]=internalize(str_to_S!("recording_device_id"));
-    keys_slice[2]=internalize(str_to_S!("revision_year"));
+    keys_slice[0]=enumerate(str_to_S!("station_name"));
+    keys_slice[1]=enumerate(str_to_S!("recording_device_id"));
+    keys_slice[2]=enumerate(str_to_S!("revision_year"));
     let values=new_list(qtype::COMPOUND_LIST, 3);
     values.as_mut_slice::<K>().copy_from_slice(&[new_symbol(tokens[0]), new_symbol(tokens[1]), new_int(tokens[2].parse::<i32>().unwrap_or_else(|_| 1991))]);
     Ok((keys, values, cursor + 1))
@@ -35,9 +34,9 @@ fn deserialize_comtrade_config_1(lines: &Vec<&str>, cursor: usize) -> Result<(K,
 fn deserialize_comtrade_config_2(lines: &Vec<&str>, cursor: usize) -> Result<(K, K, i32, i32, usize), &'static str>{
   let keys = new_list(qtype::SYMBOL_LIST, 3);
   let keys_slice=keys.as_mut_slice::<S>();
-  keys_slice[0]=internalize(str_to_S!("total_number_of_channels"));
-  keys_slice[1]=internalize(str_to_S!("number_of_analog_channels"));
-  keys_slice[2]=internalize(str_to_S!("number_of_status_channels"));
+  keys_slice[0]=enumerate(str_to_S!("total_number_of_channels"));
+  keys_slice[1]=enumerate(str_to_S!("number_of_analog_channels"));
+  keys_slice[2]=enumerate(str_to_S!("number_of_status_channels"));
 
   let tokens;
   if let Some(line) = lines.get(cursor){
@@ -139,19 +138,19 @@ fn deserialize_comtrade_config_3(lines: &Vec<&str>, num_analog_channel: i32, cur
   else{
     let keys = new_list(qtype::SYMBOL_LIST, 13);
     let keys_slice=keys.as_mut_slice::<S>();
-    keys_slice[0]=internalize(str_to_S!("analog_channel_index"));
-    keys_slice[1]=internalize(str_to_S!("analog_channel_id"));
-    keys_slice[2]=internalize(str_to_S!("analog_channel_phase"));
-    keys_slice[3]=internalize(str_to_S!("circuit_component_being_monitored"));
-    keys_slice[4]=internalize(str_to_S!("channel_units"));
-    keys_slice[5]=internalize(str_to_S!("channel_multiplier"));
-    keys_slice[6]=internalize(str_to_S!("channel_offset_adder"));
-    keys_slice[7]=internalize(str_to_S!("skew"));
-    keys_slice[8]=internalize(str_to_S!("minimum_value"));
-    keys_slice[9]=internalize(str_to_S!("maximum_value"));
-    keys_slice[10]=internalize(str_to_S!("primary_factor"));
-    keys_slice[11]=internalize(str_to_S!("secondary_factor"));
-    keys_slice[12]=internalize(str_to_S!("scaling_identifier"));
+    keys_slice[0]=enumerate(str_to_S!("analog_channel_index"));
+    keys_slice[1]=enumerate(str_to_S!("analog_channel_id"));
+    keys_slice[2]=enumerate(str_to_S!("analog_channel_phase"));
+    keys_slice[3]=enumerate(str_to_S!("circuit_component_being_monitored"));
+    keys_slice[4]=enumerate(str_to_S!("channel_units"));
+    keys_slice[5]=enumerate(str_to_S!("channel_multiplier"));
+    keys_slice[6]=enumerate(str_to_S!("channel_offset_adder"));
+    keys_slice[7]=enumerate(str_to_S!("skew"));
+    keys_slice[8]=enumerate(str_to_S!("minimum_value"));
+    keys_slice[9]=enumerate(str_to_S!("maximum_value"));
+    keys_slice[10]=enumerate(str_to_S!("primary_factor"));
+    keys_slice[11]=enumerate(str_to_S!("secondary_factor"));
+    keys_slice[12]=enumerate(str_to_S!("scaling_identifier"));
 
     let values = new_list(qtype::COMPOUND_LIST, 13);
     values.as_mut_slice::<K>().copy_from_slice(&[
@@ -228,11 +227,11 @@ fn deserialize_comtrade_config_4(lines: &Vec<&str>, num_status_channel: i32, cur
   else{
     let keys = new_list(qtype::SYMBOL_LIST, 5);
     let keys_slice=keys.as_mut_slice::<S>();
-    keys_slice[0]=internalize(str_to_S!("status_channel_index"));
-    keys_slice[1]=internalize(str_to_S!("status_channel_id"));
-    keys_slice[2]=internalize(str_to_S!("status_channel_phase"));
-    keys_slice[3]=internalize(str_to_S!("circuit_component_being_monitored"));
-    keys_slice[4]=internalize(str_to_S!("channel_state"));
+    keys_slice[0]=enumerate(str_to_S!("status_channel_index"));
+    keys_slice[1]=enumerate(str_to_S!("status_channel_id"));
+    keys_slice[2]=enumerate(str_to_S!("status_channel_phase"));
+    keys_slice[3]=enumerate(str_to_S!("circuit_component_being_monitored"));
+    keys_slice[4]=enumerate(str_to_S!("channel_state"));
 
     let values = new_list(qtype::COMPOUND_LIST, 5);
     values.as_mut_slice::<K>().copy_from_slice(&[
@@ -302,9 +301,9 @@ fn deserialize_comtrade_config_6(lines: &Vec<&str>, cursor: usize) -> Result<(K,
 
           let keys = new_list(qtype::SYMBOL_LIST, 3);
           let keys_slice = keys.as_mut_slice::<S>();
-          keys_slice[0]=internalize(str_to_S!("number_of_sample_rates"));
-          keys_slice[1]=internalize(str_to_S!("sample_rates"));
-          keys_slice[2]=internalize(str_to_S!("last_sample_number"));
+          keys_slice[0]=enumerate(str_to_S!("number_of_sample_rates"));
+          keys_slice[1]=enumerate(str_to_S!("sample_rates"));
+          keys_slice[2]=enumerate(str_to_S!("last_sample_number"));
 
           let values=new_list(qtype::COMPOUND_LIST, 3);
           values.as_mut_slice::<K>().copy_from_slice(&[
@@ -349,7 +348,7 @@ fn deserialize_comtrade_config_7_inner(line: &str, error: &'static str) -> Resul
   if line.len() == 26{
     match (line[0..2].parse::<u32>(), line[3..5].parse::<u32>(), line[6..10].parse::<i32>(), line[11..13].parse::<u32>(), line[14..16].parse::<u32>(), line[17..19].parse::<u32>(), line[20..26].parse::<u32>()){
       (Ok(day), Ok(month), Ok(year), Ok(hour), Ok(minute), Ok(second), Ok(micros)) => {
-        Ok(Utc.ymd(year, month, day).and_hms_micro(hour, minute, second, micros).timestamp_nanos() - KDB_TIMESTAMP_OFFSET)
+        Ok(ymd_to_days(year, month as i32, day as i32) as i64 * ONE_DAY_NANOS + (hour * 3600 + minute * 60 + second) as i64 * 1_000_000_000_i64 + micros as i64 * 1000_i64)
       },
       _ => Err(error)
     }
